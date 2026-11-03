@@ -8,6 +8,10 @@ import AdminLayout from "./layouts/admin"
 import Dashboard from "./pages/admin"
 import AdminBooks from "./pages/admin/books"
 import BookCreate from "./pages/admin/books/create"
+import GenresIndex from "./pages/admin/genres"
+import GenreCreate from "./pages/admin/genres/create"
+import AuthorsIndex from "./pages/admin/authors"
+import AuthorCreate from "./pages/admin/authors/create"
 
 function App() {
 
@@ -28,9 +32,22 @@ function App() {
           {/* Admin */}
           <Route path="admin" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
+
             <Route path="books">
               <Route index element={<AdminBooks />} />
               <Route path="create" element={<BookCreate />} />
+            </Route>
+
+            {/* Genres */}
+            <Route path="genres">
+              <Route index element={<GenresIndex />} />
+              <Route path="create" element={<GenreCreate />} />
+            </Route>
+
+            {/* Authors */}
+            <Route path="authors">
+              <Route index element={<AuthorsIndex />} />
+              <Route path="create" element={<AuthorCreate />} />
             </Route>
           </Route>
 
