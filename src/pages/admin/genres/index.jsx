@@ -1,11 +1,30 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getGenres } from "../../../_services/genres";
+import { getGenres, deleteGenre } from "../../../_services/genres";
 
 export default function GenresIndex() {
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleDelete = async (id) => {
+  const confirmDelete = window.confirm(
+    "Apakah kamu yakin ingin menghapus genre ini?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await deleteGenre(id);
+
+    setGenres(genres.filter((genre) => genre.id !== id));
+
+    alert("Genre berhasil dihapus!");
+  } catch (error) {
+    console.error("Gagal menghapus genre:", error);
+    alert("Genre gagal dihapus!");
+  }
+};
 
 useEffect(() => {
   let isMounted = true;
@@ -61,6 +80,7 @@ useEffect(() => {
                 <th className="p-4">No</th>
                 <th className="p-4">Genre Name</th>
                 <th className="p-4">Description</th>
+                <th className="p-4">Action</th>
               </tr>
             </thead>
 
@@ -73,11 +93,28 @@ useEffect(() => {
                     <td className="p-4">
                       {genre.description || "-"}
                     </td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <Link
+                          to={`/admin/genres/edit/${genre.id}`}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                        >
+                          Edit
+                        </Link>
+
+                        <button
+                          onClick={() => handleDelete(genre.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3" className="p-6 text-center">
+                  <td colSpan="4" className="p-6 text-center">
                     Belum ada data genre.
                   </td>
                 </tr>

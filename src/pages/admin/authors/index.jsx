@@ -1,10 +1,28 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getAuthors } from "../../../_services/authors";
+import { getAuthors, deleteAuthor } from "../../../_services/authors";
 
 export default function AuthorsIndex() {
   const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const handleDelete = async (id) => {
+  const confirmDelete = window.confirm(
+    "Apakah kamu yakin ingin menghapus author ini?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await deleteAuthor(id);
+
+    setAuthors(authors.filter((author) => author.id !== id));
+
+    alert("Author berhasil dihapus!");
+  } catch (error) {
+    console.error("Gagal menghapus author:", error);
+    alert("Author gagal dihapus!");
+  }
+};
 
   useEffect(() => {
     let isMounted = true;
@@ -61,6 +79,7 @@ export default function AuthorsIndex() {
                 <th className="p-4">Author Name</th>
                 <th className="p-4">Photo</th>
                 <th className="p-4">Bio</th>
+                <th className="p-4">Action</th>
               </tr>
             </thead>
 
@@ -72,11 +91,28 @@ export default function AuthorsIndex() {
                     <td className="p-4 font-medium">{author.name}</td>
                     <td className="p-4">{author.photo || "-"}</td>
                     <td className="p-4">{author.bio || "-"}</td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <Link
+                          to={`/admin/authors/edit/${author.id}`}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                        >
+                          Edit
+                        </Link>
+
+                        <button
+                          onClick={() => handleDelete(author.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="p-6 text-center">
+                  <td colSpan="5" className="p-6 text-center">
                     Belum ada data author.
                   </td>
                 </tr>
