@@ -12,6 +12,24 @@ export const login = async ({ email, password }) => {
   }
 }
 
+export const logout = async ({ token }) => {
+  try {
+    const { data } = await API.post('/logout', {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('userInfo');
+
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 // Fungsi Registrasi
 export const register = async ({ name, username, email, password }) => {
   try {

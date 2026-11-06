@@ -1,24 +1,39 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { useDecodeToken } from "../_services/auth";
+import { Outlet, useNavigate, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { logout } from "../_services/auth";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
+
   const token = localStorage.getItem("accessToken");
-  const userInfo = JSON.parse (localStorage.getItem("userInfo"));
-  const decodedData = useDecodeToken(token);
 
-  useEffect (() => {
-    if (!token || !decodedData || !decodedData.success) {
-      navigate("/login")
+  let userInfo = null;
+
+  try {
+    userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  } catch (error) {
+    userInfo = null;
+  }
+
+  useEffect(() => {
+    if (!token || !userInfo) {
+      navigate("/login", { replace: true });
+      return;
     }
 
-    const role = userInfo.role
-    if (role !== "admin" || !role) {
-      navigate("/")
+    if (userInfo.role !== "admin") {
+      navigate("/", { replace: true });
+      return;
     }
-  }, [token, decodedData, navigate])
+  }, [token, userInfo?.role, navigate]);
+
+  const handleLogout = async () => {
+    if (token) {
+      await logout ({ token });
+      localStorage.removeItem(userInfo)
+      navigate("/login");
+    }
+  }
 
   return (
     <>
@@ -95,6 +110,13 @@ export default function AdminLayout() {
                 </svg>
               </button>
 
+              <Link 
+                to={"/"} 
+                className="bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 focus:outline-none dark:focus:ring-indigo-800"
+                >
+                {userInfo?.name || "Admin"}
+              </Link>
+
               <button
                 type="button"
                 className="flex mx-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
@@ -103,9 +125,6 @@ export default function AdminLayout() {
                 data-dropdown-toggle="dropdown"
               >
                 <span className="sr-only">Open user menu</span>
-                <Link to={"register"} className="bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800">
-                  {userInfo.name}
-                </Link>
                 <img
                   className="w-8 h-8 rounded-full"
                   src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/michael-gough.png"
@@ -298,7 +317,15 @@ export default function AdminLayout() {
                   </svg>
                   <span className="ml-3">Help</span>
                 </Link>
+              </li>
 
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
+                  >
+                  <span className="ml-3">Logout</span>
+                </button>
               </li>
             </ul>
           </div>
