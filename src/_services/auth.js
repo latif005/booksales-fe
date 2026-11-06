@@ -1,3 +1,4 @@
+
 import { useJwt } from "react-jwt";
 import { API } from "../_api";
 
@@ -11,12 +12,22 @@ export const login = async ({ email, password }) => {
   }
 }
 
+// Fungsi Registrasi
+export const register = async ({ name, username, email, password }) => {
+  try {
+    const { data } = await API.post('/register', {
+      name,
+      username,
+      email,
+      password
+    })
 
-
-
-
-
-
+    return data
+  } catch (error) {
+    console.log(error);
+    throw error
+  }
+}
 
 export const useDecodeToken = (token) => {
   const { decodedToken, isExpired } = useJwt(token);
@@ -26,7 +37,7 @@ export const useDecodeToken = (token) => {
       return {
         success: false,
         message: "Token expired",
-        data:null
+        data: null
       }
     }
 
@@ -39,7 +50,7 @@ export const useDecodeToken = (token) => {
     return {
       success: false,
       message: error.message,
-      data:null
+      data: null
     }
   }
 }
