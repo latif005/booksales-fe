@@ -1,7 +1,25 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useDecodeToken } from "../_services/auth";
+import { useEffect } from "react";
 
 export default function AdminLayout() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
+  const userInfo = JSON.parse (localStorage.getItem("userInfo"));
+  const decodedData = useDecodeToken(token);
+
+  useEffect (() => {
+    if (!token || !decodedData || !decodedData.success) {
+      navigate("/login")
+    }
+
+    const role = userInfo.role
+    if (role !== "admin" || !role) {
+      navigate("/")
+    }
+  }, [token, decodedData, navigate])
+
   return (
     <>
       <div className="antialiased bg-gray-50 dark:bg-gray-900">
@@ -85,6 +103,9 @@ export default function AdminLayout() {
                 data-dropdown-toggle="dropdown"
               >
                 <span className="sr-only">Open user menu</span>
+                <Link to={"register"} className="bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800">
+                  {userInfo.name}
+                </Link>
                 <img
                   className="w-8 h-8 rounded-full"
                   src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/michael-gough.png"
