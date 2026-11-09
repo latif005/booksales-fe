@@ -72,3 +72,33 @@ export const useDecodeToken = (token) => {
     }
   }
 }
+
+// Mengambil informasi user yang sedang login
+export const getUserInfo = () => {
+  const userInfo = localStorage.getItem("userInfo");
+
+  if (!userInfo) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(userInfo);
+  } catch (error) {
+    return null;
+  }
+};
+
+// Mengecek apakah user sudah login
+export const isAuthenticated = () => {
+  const token = localStorage.getItem("accessToken");
+  const userInfo = getUserInfo();
+
+  return !!token && !!userInfo;
+};
+
+// Mengambil role user
+export const getUserRole = () => {
+  const userInfo = getUserInfo();
+
+  return userInfo?.role || null;
+};

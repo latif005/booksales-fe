@@ -19,6 +19,7 @@ import ShowBook from "./pages/public/books/show";
 import TransactionHistory from "./pages/public/transactions/history";
 import TransactionDetail from "./pages/public/transactions/detail";
 import AdminTransactions from "./pages/admin/transactions";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -36,11 +37,20 @@ function App() {
 
             <Route
               path="transactions/history"
-              element={<TransactionHistory />}
+              element={
+                <ProtectedRoute role="customer">
+                  <TransactionHistory />
+                </ProtectedRoute>
+              }
             />
+
             <Route
               path="transactions/detail/:id"
-              element={<TransactionDetail />}
+              element={
+                <ProtectedRoute role="customer">
+                  <TransactionDetail />
+                </ProtectedRoute>
+              }
             />
           </Route>
 
@@ -49,7 +59,15 @@ function App() {
           <Route path="register" element={<Register />} />
 
           {/* Admin */}
-          <Route path="admin" element={<AdminLayout />}>
+          {/* Admin */}
+          <Route
+            path="admin"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<Dashboard />} />
 
             <Route path="books">
