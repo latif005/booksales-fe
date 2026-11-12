@@ -3,6 +3,7 @@ import { showBook } from "../../../_services/books";
 import { useNavigate, useParams } from "react-router-dom";
 import { bookImageStorage } from "../../../_api";
 import { createTransaction } from "../../../_services/transactions";
+import { addToCart } from "../../../_services/cart";
 
 export default function ShowBook() {
   const { id } = useParams();
@@ -22,7 +23,7 @@ export default function ShowBook() {
     fetchData();
   }, [id]);
 
-  const handleSubmit = async (e) => {
+  const handleAddToCart = (e) => {
     e.preventDefault();
 
     if (!accessToken) {
@@ -30,20 +31,14 @@ export default function ShowBook() {
       return;
     }
 
-    try {
-      const payload = {
-        order_number: `ORD-${Date.now()}`,
-        book_id: id,
-        quantity: Number(quantity),
-      };
-
-      const response = await createTransaction(payload);
-      alert("Pembelian berhasil!");
-      navigate(`/transactions/detail/${response.data.id}`);
-    } catch (error) {
-      console.log(error.response?.data);
-      alert(error.response?.data?.message || "Pembelian gagal!");
+    if (Number(quantity) < 1 || Number(quantity) > book.stock) {
+      alert("Jumlah buku tidak valid atau melebihi stok!");
+      return;
     }
+
+    addToCart(book, Number(quantity));
+
+    alert("Buku berhasil ditambahkan ke keranjang!");
   };
 
   return (
@@ -140,7 +135,7 @@ export default function ShowBook() {
 
               <div className="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
                 <form
-                  onSubmit={handleSubmit}
+                  onSubmit={handleAddToCart}
                   className="mt-6 sm:mt-8 space-y-4"
                 >
                   <div>
@@ -162,9 +157,9 @@ export default function ShowBook() {
                   </div>
                   <button
                     type="submit"
-                    class="text-white mt-4 sm:mt-0 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800 flex items-center justify-center"
+                    className="text-white mt-4 sm:mt-0 bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center justify-center"
                   >
-                    Beli
+                    Tambah ke Keranjang
                   </button>
                 </form>
               </div>

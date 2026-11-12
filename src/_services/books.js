@@ -1,8 +1,13 @@
 import { API } from "../_api"
 
-export const getBooks = async () => {
-  const { data } = await API.get("/books");
-  return data.data
+export const getBooks = async (search = "") => {
+  const { data } = await API.get("/books", {
+    params: {
+      search: search
+    }
+  });
+
+  return data.data;
 }
 
 export const CreateBook = async (data) => {

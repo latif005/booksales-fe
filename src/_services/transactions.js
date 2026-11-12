@@ -70,3 +70,20 @@ export const deleteTransaction = async (id) => {
     throw error;
   }
 };
+
+
+// Checkout keranjang belanja dengan pembayaran COD
+export const checkoutCart = async (data) => {
+  try {
+    const response = await API.post("/transactions/checkout", data, {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

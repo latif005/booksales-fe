@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/public";
+// import Home from "./pages/public";
 import PublicLayout from "./layouts/public";
 import Books from "./pages/public/books";
 import Login from "./pages/auth/login";
@@ -20,6 +20,11 @@ import TransactionHistory from "./pages/public/transactions/history";
 import TransactionDetail from "./pages/public/transactions/detail";
 import AdminTransactions from "./pages/admin/transactions";
 import ProtectedRoute from "./components/ProtectedRoute";
+import UsersIndex from "./pages/admin/users";
+import About from "./pages/public/about";
+import Contact from "./pages/public/contact";
+import ContactMessages from "./pages/admin/contact-messages";
+import Cart from "./pages/public/cart";
 
 function App() {
   return (
@@ -28,12 +33,16 @@ function App() {
         <Routes>
           {/* Public */}
           <Route element={<PublicLayout />}>
-            <Route index element={<Home />} />
+            <Route index element={<About />} />
 
             <Route path="books">
               <Route index element={<Books />} />
               <Route path="show/:id" element={<ShowBook />} />
             </Route>
+
+            <Route path="cart" element={<Cart />} />
+
+            <Route path="contact" element={<Contact />} />
 
             <Route
               path="transactions/history"
@@ -90,8 +99,13 @@ function App() {
               <Route path="edit/:id" element={<AuthorEdit />} />
             </Route>
 
+            {/* Users */}
+            <Route path="users" element={<UsersIndex />} />
+
             {/* Transactions */}
             <Route path="transactions" element={<AdminTransactions />} />
+
+            <Route path="contact-messages" element={<ContactMessages />} />
           </Route>
         </Routes>
       </BrowserRouter>

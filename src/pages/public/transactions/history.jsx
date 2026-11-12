@@ -105,14 +105,44 @@ export default function TransactionHistory() {
                     </div>
                   </div>
 
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Total Pembayaran
-                    </p>
-                    <p className="mt-1 text-xl font-bold text-indigo-700 dark:text-indigo-400">
-                      {formatRupiah(transaction.total_amount)}
-                    </p>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Total Pembayaran
+                      </p>
+                      <p className="mt-1 text-xl font-bold text-indigo-700 dark:text-indigo-400">
+                        {formatRupiah(transaction.total_amount)}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Jumlah Buku
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {transaction.quantity || 1} buku
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Metode Pembayaran
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {transaction.payment_method || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Status Pembayaran
+                      </p>
+                      <span className="inline-block rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
+                        {transaction.payment_status || "-"}
+                      </span>
+                    </div>
                   </div>
+
                   <div className="mt-5 border-t border-gray-200 pt-4 dark:border-gray-700">
                     <Link
                       to={`/transactions/detail/${transaction.id}`}

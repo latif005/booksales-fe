@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getTransactionById } from "../../../_services/transactions";
@@ -54,9 +53,7 @@ export default function TransactionDetail() {
   if (error || !transaction) {
     return (
       <section className="bg-gray-50 p-10 text-center dark:bg-gray-900">
-        <p className="text-red-600">
-          {error || "Transaksi tidak ditemukan."}
-        </p>
+        <p className="text-red-600">{error || "Transaksi tidak ditemukan."}</p>
         <Link
           to="/transactions/history"
           className="mt-4 inline-block text-indigo-600 hover:underline"
@@ -70,7 +67,6 @@ export default function TransactionDetail() {
   return (
     <section className="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
       <div className="mx-auto max-w-3xl px-4">
-
         <Link
           to="/transactions/history"
           className="mb-6 inline-flex items-center text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
@@ -79,7 +75,6 @@ export default function TransactionDetail() {
         </Link>
 
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:p-8">
-
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Detail Transaksi
@@ -117,11 +112,13 @@ export default function TransactionDetail() {
               <p className="mt-2 text-gray-600 dark:text-gray-300">
                 Harga buku: {formatRupiah(transaction.book?.price || 0)}
               </p>
+              <p className="mt-2 text-gray-600 dark:text-gray-300">
+                Jumlah: {transaction.quantity || 1} buku
+              </p>
             </div>
           </div>
 
           <div className="space-y-4 border-t border-gray-200 pt-5 dark:border-gray-700">
-
             <div className="flex justify-between gap-4">
               <span className="text-gray-500 dark:text-gray-400">
                 Tanggal Pembelian
@@ -142,13 +139,21 @@ export default function TransactionDetail() {
 
             <div className="flex justify-between gap-4">
               <span className="text-gray-500 dark:text-gray-400">
-                Status
+                Metode Pembayaran
               </span>
-              <span className="font-medium text-green-600">
-                Transaksi Tercatat
+              <span className="font-medium text-gray-900 dark:text-white">
+                {transaction.payment_method || "-"}
               </span>
             </div>
 
+            <div className="flex justify-between gap-4">
+              <span className="text-gray-500 dark:text-gray-400">
+                Status Pembayaran
+              </span>
+              <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
+                {transaction.payment_status || "-"}
+              </span>
+            </div>
           </div>
 
           <div className="mt-6 flex justify-between border-t border-gray-200 pt-5 dark:border-gray-700">
@@ -159,7 +164,6 @@ export default function TransactionDetail() {
               {formatRupiah(transaction.total_amount)}
             </span>
           </div>
-
         </div>
       </div>
     </section>

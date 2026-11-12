@@ -91,6 +91,8 @@ export default function AdminTransactions() {
                 <th className="px-6 py-4">Buku</th>
                 <th className="px-6 py-4">Tanggal</th>
                 <th className="px-6 py-4">Total</th>
+                <th className="px-6 py-4">Metode Pembayaran</th>
+                <th className="px-6 py-4">Status Pembayaran</th>
                 <th className="px-6 py-4">Action</th>
               </tr>
             </thead>
@@ -119,6 +121,23 @@ export default function AdminTransactions() {
                       {formatRupiah(transaction.total_amount)}
                     </td>
                     <td className="px-6 py-4">
+                      {transaction.payment_method || "-"}
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${
+                          transaction.payment_status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : transaction.payment_status === "paid"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {transaction.payment_status || "-"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
                       <button
                         onClick={() => setSelectedTransaction(transaction)}
                         className="mr-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -136,7 +155,7 @@ export default function AdminTransactions() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="px-6 py-8 text-center">
+                  <td colSpan="9" className="px-6 py-8 text-center">
                     Belum ada transaksi.
                   </td>
                 </tr>
@@ -200,6 +219,30 @@ export default function AdminTransactions() {
                 </p>
                 <p className="font-semibold text-gray-900 dark:text-white">
                   {formatRupiah(selectedTransaction.total_amount)}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Metode Pembayaran
+                </p>
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  {selectedTransaction.payment_method || "-"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Status Pembayaran
+                </p>
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  {selectedTransaction.payment_status || "-"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-500 dark:text-gray-400">Jumlah Buku</p>
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  {selectedTransaction.quantity || 1} buku
                 </p>
               </div>
             </div>
