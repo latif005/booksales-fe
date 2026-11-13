@@ -7,7 +7,47 @@ import { checkoutCart } from "../../../_services/transactions";
 export default function Cart() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [snapReady, setSnapReady] = useState(false);
+
   const navigate = useNavigate();
+  const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+
+  // Memuat Snap.js Midtrans
+  useEffect(() => {
+    if (!clientKey) {
+      console.error("Midtrans Client Key belum dikonfigurasi.");
+      return;
+    }
+
+    if (window.snap) {
+      setSnapReady(true);
+      return;
+    }
+
+    const existingScript = document.querySelector(
+      'script[data-midtrans-snap="true"]'
+    );
+
+    if (existingScript) {
+      existingScript.addEventListener("load", () => setSnapReady(true));
+      return;
+    }
+
+    const script = document.createElement("script");
+
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute("data-client-key", clientKey);
+    script.setAttribute("data-midtrans-snap", "true");
+    script.async = true;
+
+    script.onload = () => setSnapReady(true);
+    script.onerror = () => {
+      console.error("Gagal memuat Midtrans Snap.");
+    };
+
+    document.body.appendChild(script);
+  }, [clientKey]);
 
   useEffect(() => {
     setCart(getCart());
@@ -35,8 +75,16 @@ export default function Cart() {
       return;
     }
 
+    if (paymentMethod === "MIDTRANS" && !snapReady) {
+      alert("Midtrans Snap belum siap. Silakan coba beberapa saat lagi.");
+      return;
+    }
+
+    const paymentName =
+      paymentMethod === "COD" ? "COD" : "Midtrans";
+
     const confirmed = window.confirm(
-      `Apakah kamu yakin ingin checkout dengan pembayaran COD?\nTotal: Rp ${total.toLocaleString("id-ID")}`
+      `Apakah kamu yakin ingin checkout dengan pembayaran ${paymentName}?\nTotal: Rp ${total.toLocaleString("id-ID")}`
     );
 
     if (!confirmed) return;
@@ -46,26 +94,66 @@ export default function Cart() {
 
       const payload = {
         order_number: `ORD-${Date.now()}`,
-        payment_method: "COD",
+        payment_method: paymentMethod,
         items: cart.map((item) => ({
           book_id: item.id,
           quantity: Number(item.quantity),
         })),
       };
 
-      await checkoutCart(payload);
+      const result = await checkoutCart(payload);
 
+      if (paymentMethod === "COD") {
+        clearCart();
+        setCart([]);
+
+        alert(
+          "Checkout berhasil! Silakan lakukan pembayaran saat pesanan diterima."
+        );
+
+        navigate("/transactions/history");
+        return;
+      }
+
+      if (!result.snap_token) {
+        throw new Error("Snap Token tidak ditemukan dari server.");
+      }
+
+      // Keranjang dikosongkan karena pesanan sudah tercatat di server
       clearCart();
       setCart([]);
 
-      alert("Checkout berhasil! Silakan lakukan pembayaran saat pesanan diterima.");
+      setLoading(false);
 
-      navigate("/transactions/history");
+      // Membuka halaman pembayaran Midtrans
+      window.snap.pay(result.snap_token, {
+        onSuccess: function () {
+          alert("Pembayaran berhasil!");
+          navigate("/transactions/history");
+        },
+        onPending: function () {
+          alert(
+            "Pembayaran belum selesai. Silakan cek status pesanan di riwayat transaksi."
+          );
+          navigate("/transactions/history");
+        },
+        onError: function () {
+          alert("Pembayaran mengalami kendala. Silakan cek riwayat transaksi.");
+          navigate("/transactions/history");
+        },
+        onClose: function () {
+          alert(
+            "Halaman pembayaran ditutup. Pesanan tercatat dengan status pending."
+          );
+          navigate("/transactions/history");
+        },
+      });
     } catch (error) {
       console.error(error);
 
       const message =
         error.response?.data?.message ||
+        error.message ||
         "Checkout gagal. Silakan periksa stok buku dan coba lagi.";
 
       alert(message);
@@ -129,18 +217,68 @@ export default function Cart() {
             </table>
           </div>
 
-          <div className="mt-6 text-right">
+          <div className="mt-6">
             <h2 className="mb-4 text-xl font-bold">
               Total: Rp {total.toLocaleString("id-ID")}
             </h2>
 
-            <button
-              onClick={handleCheckout}
-              disabled={loading}
-              className="rounded-lg bg-indigo-700 px-6 py-3 text-white hover:bg-indigo-800 disabled:opacity-50"
-            >
-              {loading ? "Memproses..." : "Checkout COD"}
-            </button>
+            <h3 className="mb-3 font-semibold">
+              Pilih Metode Pembayaran
+            </h3>
+
+            <div className="mb-5 space-y-3">
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-4">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="COD"
+                  checked={paymentMethod === "COD"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                />
+                <div>
+                  <p className="font-semibold">Cash on Delivery (COD)</p>
+                  <p className="text-sm text-gray-500">
+                    Bayar saat pesanan diterima.
+                  </p>
+                </div>
+              </label>
+
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-4">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="MIDTRANS"
+                  checked={paymentMethod === "MIDTRANS"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                />
+                <div>
+                  <p className="font-semibold">Midtrans</p>
+                  <p className="text-sm text-gray-500">
+                    Pembayaran online melalui Snap Checkout.
+                    {snapReady
+                      ? " Siap digunakan."
+                      : " Sedang memuat pembayaran..."}
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <div className="text-right">
+              <button
+                onClick={handleCheckout}
+                disabled={
+                  loading ||
+                  (paymentMethod === "MIDTRANS" && !snapReady)
+                }
+                className="rounded-lg bg-indigo-700 px-6 py-3 text-white hover:bg-indigo-800 disabled:opacity-50"
+              >
+                {loading
+                  ? "Memproses..."
+                  : paymentMethod === "COD"
+                    ? "Checkout COD"
+                    : "Bayar dengan Midtrans"}
+              </button>
+            </div>
           </div>
         </>
       )}
