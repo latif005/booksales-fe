@@ -16,7 +16,7 @@ export default function TransactionDetail() {
         const data = await getTransactionById(id);
         setTransaction(data);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         setError("Gagal mengambil detail transaksi.");
       } finally {
         setLoading(false);
@@ -31,7 +31,7 @@ export default function TransactionDetail() {
       style: "currency",
       currency: "IDR",
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(amount || 0);
   };
 
   const formatDate = (date) => {
@@ -44,19 +44,19 @@ export default function TransactionDetail() {
 
   if (loading) {
     return (
-      <section className="bg-gray-50 p-10 text-center dark:bg-gray-900">
-        <p className="text-gray-500">Memuat detail transaksi...</p>
+      <section className="min-h-screen bg-gray-900 p-10 text-center">
+        <p className="text-gray-300">Memuat detail transaksi...</p>
       </section>
     );
   }
 
   if (error || !transaction) {
     return (
-      <section className="bg-gray-50 p-10 text-center dark:bg-gray-900">
-        <p className="text-red-600">{error || "Transaksi tidak ditemukan."}</p>
+      <section className="min-h-screen bg-gray-900 p-10 text-center">
+        <p className="text-red-400">{error || "Transaksi tidak ditemukan."}</p>
         <Link
           to="/transactions/history"
-          className="mt-4 inline-block text-indigo-600 hover:underline"
+          className="mt-4 inline-block text-indigo-400 hover:underline"
         >
           Kembali ke Riwayat Transaksi
         </Link>
@@ -65,105 +65,160 @@ export default function TransactionDetail() {
   }
 
   return (
-    <section className="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
-      <div className="mx-auto max-w-3xl px-4">
+    <section className="min-h-screen bg-gray-900 py-10 text-white">
+      <div className="mx-auto max-w-4xl px-4">
         <Link
           to="/transactions/history"
-          className="mb-6 inline-flex items-center text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+          className="mb-6 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300"
         >
           ← Kembali ke Riwayat Transaksi
         </Link>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:p-8">
-          <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Detail Transaksi
+        <div className="overflow-hidden rounded-2xl border border-gray-700 bg-gray-800 shadow-lg">
+          {/* Header */}
+          <div className="border-b border-gray-700 p-6 md:p-8">
+            <p className="text-sm font-medium text-indigo-400">
+              DETAIL PESANAN
+            </p>
+
+            <h1 className="mt-2 text-2xl font-bold md:text-3xl">
+              Informasi Transaksi
             </h1>
-            <p className="mt-2 text-gray-500 dark:text-gray-400">
-              Informasi lengkap pembelian buku kamu.
+
+            <p className="mt-2 text-sm text-gray-400">
+              Berikut rincian seluruh buku dalam pesanan kamu.
             </p>
-          </div>
 
-          <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              Nomor Transaksi
-            </p>
-            <p className="mt-1 font-semibold text-gray-900 dark:text-white">
-              {transaction.order_number}
-            </p>
-          </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-sm text-gray-400">Nomor Pesanan</p>
+                <p className="mt-1 font-semibold">{transaction.order_number}</p>
+              </div>
 
-          <div className="my-6 flex flex-col gap-5 sm:flex-row">
-            <div className="h-48 w-32 flex-shrink-0">
-              <img
-                src={`${bookImageStorage}/${transaction.book?.cover_photo}`}
-                alt={transaction.book?.title}
-                className="h-full w-full rounded-lg object-cover"
-              />
-            </div>
-
-            <div className="flex flex-col justify-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Buku yang Dibeli
-              </p>
-              <h2 className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
-                {transaction.book?.title || "Buku tidak ditemukan"}
-              </h2>
-              <p className="mt-2 text-gray-600 dark:text-gray-300">
-                Harga buku: {formatRupiah(transaction.book?.price || 0)}
-              </p>
-              <p className="mt-2 text-gray-600 dark:text-gray-300">
-                Jumlah: {transaction.quantity || 1} buku
-              </p>
+              <div>
+                <p className="text-sm text-gray-400">Tanggal Pembelian</p>
+                <p className="mt-1 font-semibold">
+                  {formatDate(transaction.created_at)}
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-4 border-t border-gray-200 pt-5 dark:border-gray-700">
-            <div className="flex justify-between gap-4">
-              <span className="text-gray-500 dark:text-gray-400">
-                Tanggal Pembelian
-              </span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {formatDate(transaction.created_at)}
-              </span>
-            </div>
+          {/* Daftar Buku */}
+          <div className="p-6 md:p-8">
+            <h2 className="mb-5 text-lg font-bold">
+              Buku yang Dibeli ({transaction.items?.length || 0})
+            </h2>
 
-            <div className="flex justify-between gap-4">
-              <span className="text-gray-500 dark:text-gray-400">
-                Nama Customer
-              </span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {transaction.customer?.name || "Customer"}
-              </span>
-            </div>
+            <div className="space-y-4">
+              {transaction.items?.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-col gap-4 rounded-xl border border-gray-700 bg-gray-900/60 p-4 sm:flex-row sm:items-center"
+                >
+                  <div className="h-28 w-20 flex-shrink-0">
+                    <img
+                      src={
+                        item.book?.cover_photo
+                          ? `${bookImageStorage}/${item.book.cover_photo}`
+                          : ""
+                      }
+                      alt={item.book?.title || "Cover buku"}
+                      className="h-full w-full rounded-lg object-cover"
+                    />
+                  </div>
 
-            <div className="flex justify-between gap-4">
-              <span className="text-gray-500 dark:text-gray-400">
-                Metode Pembayaran
-              </span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {transaction.payment_method || "-"}
-              </span>
-            </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold">
+                      {item.book?.title || "Buku tidak ditemukan"}
+                    </h3>
 
-            <div className="flex justify-between gap-4">
-              <span className="text-gray-500 dark:text-gray-400">
-                Status Pembayaran
-              </span>
-              <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
-                {transaction.payment_status || "-"}
-              </span>
+                    <p className="mt-2 text-sm text-gray-400">
+                      Harga satuan:{" "}
+                      {formatRupiah(
+                        item.quantity > 0
+                          ? item.total_amount / item.quantity
+                          : 0,
+                      )}
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-400">
+                      Jumlah: {item.quantity} buku
+                    </p>
+                  </div>
+
+                  <div className="sm:text-right">
+                    <p className="text-sm text-gray-400">Subtotal</p>
+                    <p className="mt-1 text-lg font-bold text-indigo-400">
+                      {formatRupiah(item.total_amount)}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="mt-6 flex justify-between border-t border-gray-200 pt-5 dark:border-gray-700">
-            <span className="text-lg font-semibold text-gray-900 dark:text-white">
-              Total Pembayaran
-            </span>
-            <span className="text-xl font-bold text-indigo-700 dark:text-indigo-400">
-              {formatRupiah(transaction.total_amount)}
-            </span>
+          {/* Informasi Pembayaran */}
+          <div className="border-t border-gray-700 p-6 md:p-8">
+            <h2 className="mb-5 text-lg font-bold">Informasi Pembayaran</h2>
+
+            <div className="space-y-4">
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-400">Nama Customer</span>
+                <span className="font-medium">
+                  {transaction.customer?.name || "Customer"}
+                </span>
+              </div>
+
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-400">Jumlah Buku</span>
+                <span className="font-medium">
+                  {transaction.total_quantity} buku
+                </span>
+              </div>
+
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-400">Metode Pembayaran</span>
+                <span className="font-medium">
+                  {transaction.payment_method || "-"}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center gap-4">
+                <span className="text-gray-400">Status Pembayaran</span>
+
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    transaction.payment_status === "success"
+                      ? "bg-green-500/20 text-green-400"
+                      : transaction.payment_status === "failed"
+                        ? "bg-red-500/20 text-red-400"
+                        : "bg-yellow-500/20 text-yellow-400"
+                  }`}
+                >
+                  {transaction.payment_status || "pending"}
+                </span>
+              </div>
+            </div>
+
+            {/* Total */}
+            <div className="mt-6 flex items-center justify-between border-t border-gray-700 pt-6">
+              <span className="text-lg font-semibold">Total Pembayaran</span>
+
+              <span className="text-xl font-bold text-indigo-400 md:text-2xl">
+                {formatRupiah(transaction.total_amount)}
+              </span>
+            </div>
           </div>
+        </div>
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/books"
+            className="inline-flex rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700"
+          >
+            Belanja Buku Lagi
+          </Link>
         </div>
       </div>
     </section>

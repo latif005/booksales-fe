@@ -2,22 +2,29 @@ import { useEffect, useState } from "react";
 import { showBook } from "../../../_services/books";
 import { useNavigate, useParams } from "react-router-dom";
 import { bookImageStorage } from "../../../_api";
-import { createTransaction } from "../../../_services/transactions";
 import { addToCart } from "../../../_services/cart";
 
 export default function ShowBook() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [book, setBook] = useState({});
   const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
 
   useEffect(() => {
     const fetchData = async () => {
-      const [bookData] = await Promise.all([showBook(id)]);
-
-      setBook(bookData);
+      try {
+        setLoading(true);
+        const bookData = await showBook(id);
+        setBook(bookData);
+      } catch (error) {
+        console.error("Gagal mengambil detail buku:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -37,142 +44,124 @@ export default function ShowBook() {
     }
 
     addToCart(book, Number(quantity));
-
     alert("Buku berhasil ditambahkan ke keranjang!");
   };
 
+  if (loading) {
+    return (
+      <div className="bg-gray-900 py-20 text-center text-white">
+        Memuat detail buku...
+      </div>
+    );
+  }
+
+  if (!book.id) {
+    return (
+      <div className="bg-gray-900 py-20 text-center text-white">
+        Buku tidak ditemukan.
+      </div>
+    );
+  }
+
+  const stockAvailable = Number(book.stock) > 0;
+
   return (
-    <>
-      <section className="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
-        <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
-            <div className="shrink-0 max-w-md lg:max-w-lg mx-auto">
-              <img
-                className="mx-auto h-full object-contain"
-                src={`${bookImageStorage}/${book.cover_photo}`}
-                alt={book.title}
-              />
+    <section className="min-h-screen bg-gray-900 py-12 text-white md:py-16">
+      <div className="mx-auto max-w-screen-xl px-4">
+        <div className="grid items-start gap-12 md:grid-cols-2">
+          {/* Cover Buku */}
+          <div className="flex justify-center rounded-xl bg-gray-800 p-8">
+            <img
+              src={`${bookImageStorage}/${book.cover_photo}`}
+              alt={book.title}
+              className="max-h-[550px] w-auto rounded-lg object-contain shadow-lg"
+            />
+          </div>
+
+          {/* Informasi Buku */}
+          <div className="pt-2">
+            <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-indigo-400">
+              Detail Buku
+            </p>
+
+            <h1 className="text-3xl font-bold md:text-4xl">{book.title}</h1>
+
+            {/* Harga */}
+            <div className="mt-6">
+              <p className="mb-2 text-sm text-gray-400">Harga Buku</p>
+
+              <p className="text-3xl font-extrabold text-indigo-400">
+                {Number(book.price).toLocaleString("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  maximumFractionDigits: 0,
+                })}
+              </p>
             </div>
 
-            <div className="mt-6 sm:mt-8 lg:mt-0">
-              <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-                {book.title}
-              </h1>
-              <div className="mt-4 sm:items-center sm:gap-4 sm:flex">
-                <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">
-                  Rp{book.price}
-                </p>
+            {/* Informasi Stok */}
+            <div className="mt-6 rounded-lg border border-gray-700 bg-gray-800 p-4">
+              <p className="mb-2 text-sm text-gray-400">Ketersediaan Buku</p>
 
-                <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                  <div className="flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-medium leading-none text-gray-500 dark:text-gray-400">
-                    (5.0)
-                  </p>
-                  <a
-                    href="#"
-                    className="text-sm font-medium leading-none text-gray-900 underline hover:no-underline dark:text-white"
-                  >
-                    345 Reviews
-                  </a>
-                </div>
-              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Stok tersedia</span>
 
-              <div className="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
-                <form
-                  onSubmit={handleAddToCart}
-                  className="mt-6 sm:mt-8 space-y-4"
+                <span
+                  className={`font-semibold ${
+                    stockAvailable ? "text-green-400" : "text-red-400"
+                  }`}
                 >
-                  <div>
-                    <label
-                      htmlFor="quantity"
-                      className="block text-sm font-medium text-gray-700 dark:text-white"
-                    >
-                      Jumlah
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      name="quantity"
-                      value={quantity}
-                      min={1}
-                      onChange={(e) => setQuantity(e.target.value)}
-                      className="mt-1 block w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="text-white mt-4 sm:mt-0 bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center justify-center"
-                  >
-                    Tambah ke Keranjang
-                  </button>
-                </form>
+                  {stockAvailable ? `${book.stock} buku` : "Stok habis"}
+                </span>
+              </div>
+            </div>
+
+            {/* Form Keranjang */}
+            <form onSubmit={handleAddToCart} className="mt-8 space-y-5">
+              <div>
+                <label
+                  htmlFor="quantity"
+                  className="mb-2 block text-sm font-medium"
+                >
+                  Jumlah Pembelian
+                </label>
+
+                <input
+                  type="number"
+                  id="quantity"
+                  name="quantity"
+                  value={quantity}
+                  min={1}
+                  max={book.stock}
+                  disabled={!stockAvailable}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setQuantity(value === "" ? "" : Number(value));
+                  }}
+                  className="w-32 rounded-lg border border-gray-600 bg-gray-800 p-3 text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                />
               </div>
 
-              <hr className="my-6 md:my-8 border-gray-200 dark:border-gray-800" />
+              <button
+                type="submit"
+                disabled={!stockAvailable}
+                className="w-full rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-600 sm:w-auto"
+              >
+                {stockAvailable ? "Tambah ke Keranjang" : "Stok Habis"}
+              </button>
+            </form>
 
-              <p class="mb-6 text-gray-500 dark:text-gray-400">
-                {book.description}
+            {/* Deskripsi */}
+            <div className="mt-10 border-t border-gray-700 pt-6">
+              <h2 className="mb-3 text-xl font-bold">Deskripsi Buku</h2>
+
+              <p className="leading-relaxed text-gray-300">
+                {book.description || "Belum ada deskripsi buku."}
               </p>
             </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

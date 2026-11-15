@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { getBooks } from "../../../_services/books";
 import { Link } from "react-router-dom";
@@ -29,7 +28,6 @@ export default function Books() {
   return (
     <section className="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
       <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
-
         {/* Kolom pencarian */}
         <div className="mb-6">
           <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
@@ -47,9 +45,7 @@ export default function Books() {
 
         {/* Daftar buku */}
         {loading ? (
-          <p className="py-8 text-center text-gray-500">
-            Memuat data buku...
-          </p>
+          <p className="py-8 text-center text-gray-500">Memuat data buku...</p>
         ) : books.length > 0 ? (
           <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
             {books.map((book) => (
@@ -75,30 +71,34 @@ export default function Books() {
                     {book.title}
                   </Link>
 
-                  <ul className="mt-2 flex items-center gap-4">
-                    <li className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Fast Delivery
-                      </p>
-                    </li>
+                  <div className="mt-3">
+                    <span
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                        book.stock > 0
+                          ? "bg-green-500/10 text-green-400"
+                          : "bg-red-500/10 text-red-400"
+                      }`}
+                    >
+                      {book.stock > 0
+                        ? `Stok: ${book.stock} buku`
+                        : "Stok Habis"}
+                    </span>
+                  </div>
 
-                    <li className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Best Price
-                      </p>
-                    </li>
-                  </ul>
-
-                  <div className="mt-4 flex items-center justify-between gap-4">
-                    <p className="text-2xl font-extrabold leading-tight text-gray-900 dark:text-white">
-                      Rp{book.price}
+                  <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="whitespace-nowrap text-xl font-bold text-white">
+                      {new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        maximumFractionDigits: 0,
+                      }).format(book.price)}
                     </p>
 
                     <Link
                       to={`/books/show/${book.id}`}
-                      className="inline-flex items-center rounded-lg bg-indigo-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-800"
+                      className="inline-flex w-full items-center justify-center whitespace-nowrap rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 sm:w-auto"
                     >
-                      View detail
+                      Lihat Detail
                     </Link>
                   </div>
                 </div>
@@ -110,7 +110,6 @@ export default function Books() {
             Buku tidak ditemukan.
           </p>
         )}
-
       </div>
     </section>
   );

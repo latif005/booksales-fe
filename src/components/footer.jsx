@@ -2,55 +2,55 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <>
-      <footer className="border-t-2 p-4 bg-white md:p-8 lg:p-10 dark:bg-gray-800">
-        <div className="mx-auto max-w-screen-xl text-center">
-          <ul className="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
-            <li>
-              <Link to={"#"} className="mr-4 hover:underline md:mr-6 ">
-                About
-              </Link>
-            </li>
-            <li>
-              <Link to={"#"} className="mr-4 hover:underline md:mr-6 ">
-                Premium
-              </Link>
-            </li>
-            <li>
-              <Link to={"#"} className="mr-4 hover:underline md:mr-6 ">
-                Campaigns
-              </Link>
-            </li>
-            <li>
-              <Link to={"#"} className="mr-4 hover:underline md:mr-6 ">
-                Blog
-              </Link>
-            </li>
-            <li>
-              <Link to={"#"} className="mr-4 hover:underline md:mr-6 ">
-                Affiliate Program
-              </Link>
-            </li>
-            <li>
-              <Link to={"#"} className="mr-4 hover:underline md:mr-6 ">
-                FAQs
-              </Link>
-            </li>
-            <li>
-              <Link to={"#"} className="mr-4 hover:underline md:mr-6 ">
-                Contact
-              </Link>
-            </li>
-          </ul>
-          <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">
-            ©{" "}
-            <Link to={"#"} className="mr-4 hover:underline md:mr-6 ">
-              2026
+    <footer className="border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+      <div className="mx-auto max-w-screen-xl px-5 py-8 md:px-8">
+        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+          {/* Identitas aplikasi */}
+          <div className="text-center md:text-left">
+            <Link
+              to="/"
+              className="text-xl font-bold text-gray-900 dark:text-white"
+            >
+              BookSales
             </Link>
-            . All Rights Reserved.
-          </span>
+
+            <p className="mt-2 max-w-sm text-sm text-gray-500 dark:text-gray-400">
+              Temukan dan beli buku favoritmu dengan mudah melalui BookSales.
+            </p>
+          </div>
+
+          {/* Navigasi */}
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm">
+            <Link
+              to="/"
+              className="text-gray-600 transition hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+            >
+              Beranda
+            </Link>
+
+            <Link
+              to="/books"
+              className="text-gray-600 transition hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+            >
+              Books
+            </Link>
+
+            <Link
+              to="/contact"
+              className="text-gray-600 transition hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+            >
+              Contact Admin
+            </Link>
+          </div>
         </div>
-      </footer>
-    </>
+
+        {/* Copyright */}
+        <div className="mt-7 border-t border-gray-200 pt-5 text-center dark:border-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            © 2026 BookSales. All Rights Reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
   );
 }

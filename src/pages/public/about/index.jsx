@@ -1,87 +1,190 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { getBooks } from "../../../_services/books";
+import { bookImageStorage } from "../../../_api";
 
 export default function About() {
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const data = await getBooks();
+        setBooks(Array.isArray(data) ? data.slice(0, 4) : []);
+      } catch (error) {
+        console.error("Gagal mengambil buku:", error);
+        setBooks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBooks();
+  }, []);
+
+  const formatPrice = (price) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    }).format(price);
+
   return (
-    <section className="bg-gray-50 py-16 dark:bg-gray-900">
-      <div className="mx-auto max-w-screen-xl px-4">
+    <main className="bg-gray-900">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-gray-800 via-gray-900 to-indigo-950">
+        <div className="mx-auto max-w-screen-xl px-6 py-20 md:py-28">
+          <div className="max-w-2xl">
+            <span className="mb-5 inline-block rounded-full bg-indigo-500/20 px-4 py-2 text-sm font-semibold text-indigo-300">
+              Selamat Datang di BookSales
+            </span>
 
-        <div className="mb-12 text-center">
-          <h1 className="mb-4 text-4xl font-extrabold text-gray-900 dark:text-white">
-            About BookSales
-          </h1>
+            <h1 className="mb-6 text-4xl font-extrabold leading-tight text-white md:text-6xl">
+              Temukan Buku Favoritmu, Mulai Petualangan Baru
+            </h1>
 
-          <p className="mx-auto max-w-2xl text-gray-600 dark:text-gray-300">
-            Mengenal lebih dekat BookSales, platform penjualan buku
-            online yang memudahkan siapa saja menemukan dan membeli buku.
-          </p>
-        </div>
-
-        <div className="grid items-center gap-10 md:grid-cols-2">
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-              Siapa Kami?
-            </h2>
-
-            <p className="mb-4 leading-relaxed text-gray-600 dark:text-gray-300">
-              BookSales merupakan aplikasi penjualan buku berbasis web
-              yang menyediakan berbagai pilihan buku dari beragam genre
-              dan penulis.
+            <p className="mb-8 max-w-xl text-base leading-relaxed text-gray-300 md:text-lg">
+              Jelajahi berbagai pilihan buku menarik dan temukan bacaan yang
+              sesuai dengan minatmu. Belanja buku jadi lebih mudah bersama
+              BookSales.
             </p>
 
-            <p className="leading-relaxed text-gray-600 dark:text-gray-300">
-              Aplikasi ini dikembangkan untuk memberikan pengalaman
-              berbelanja buku secara praktis, mudah, dan nyaman melalui
-              internet.
-            </p>
-          </div>
-
-          <div className="rounded-xl bg-indigo-700 p-10 text-center text-white shadow-lg">
-            <h2 className="mb-4 text-3xl font-bold">
-              BookSales
-            </h2>
-
-            <p className="leading-relaxed">
-              Temukan buku favoritmu dan nikmati kemudahan berbelanja
-              buku secara online.
-            </p>
+            <Link
+              to="/books"
+              className="inline-flex items-center rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700"
+            >
+              Jelajahi Buku
+              <span className="ml-2">→</span>
+            </Link>
           </div>
         </div>
+      </section>
 
-        <div className="mt-16 text-center">
-          <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-            Layanan Kami
-          </h2>
+      {/* Koleksi Buku */}
+      <section className="py-16">
+        <div className="mx-auto max-w-screen-xl px-6">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-indigo-400">
+                Pilihan Untukmu
+              </p>
+
+              <h2 className="text-3xl font-bold text-white">
+                Koleksi Buku Pilihan
+              </h2>
+
+              <p className="mt-2 text-gray-400">
+                Temukan berbagai buku dari koleksi BookSales.
+              </p>
+            </div>
+
+            <Link
+              to="/books"
+              className="font-semibold text-indigo-400 hover:text-indigo-300"
+            >
+              Lihat Semua Buku →
+            </Link>
+          </div>
+
+          {loading ? (
+            <p className="py-10 text-center text-gray-400">
+              Memuat koleksi buku...
+            </p>
+          ) : books.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {books.map((book) => (
+                <div
+                  key={book.id}
+                  className="overflow-hidden rounded-xl border border-gray-700 bg-gray-800 transition duration-300 hover:-translate-y-1 hover:border-indigo-500"
+                >
+                  <Link to={`/books/show/${book.id}`}>
+                    <div className="flex h-64 items-center justify-center bg-gray-700 p-5">
+                      <img
+                        src={`${bookImageStorage}/${book.cover_photo}`}
+                        alt={book.title}
+                        className="h-full max-w-full object-contain"
+                      />
+                    </div>
+                  </Link>
+
+                  <div className="p-5">
+                    <Link to={`/books/show/${book.id}`}>
+                      <h3 className="mb-3 min-h-12 text-lg font-bold text-white hover:text-indigo-400">
+                        {book.title}
+                      </h3>
+                    </Link>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-bold text-indigo-400">
+                        {formatPrice(book.price)}
+                      </p>
+
+                      <Link
+                        to={`/books/show/${book.id}`}
+                        className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                      >
+                        Detail
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="py-10 text-center text-gray-400">
+              Belum ada buku yang tersedia.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Keunggulan BookSales */}
+      <section className="border-t border-gray-800 bg-gray-800/50 py-16">
+        <div className="mx-auto max-w-screen-xl px-6">
+          <div className="mb-10 text-center">
+            <h2 className="text-3xl font-bold text-white">
+              Mengapa BookSales?
+            </h2>
+
+            <p className="mt-3 text-gray-400">
+              Pengalaman membeli buku yang praktis dan nyaman.
+            </p>
+          </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
-                Koleksi Buku
+            <div className="rounded-xl border border-gray-700 bg-gray-800 p-7 text-center">
+              <div className="mb-4 text-4xl">📚</div>
+              <h3 className="mb-2 text-lg font-bold text-white">
+                Beragam Koleksi
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Menyediakan berbagai buku berdasarkan kategori dan penulis.
+              <p className="text-sm leading-relaxed text-gray-400">
+                Temukan berbagai pilihan buku sesuai minat dan kebutuhanmu.
               </p>
             </div>
 
-            <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
-                Pencarian Buku
+            <div className="rounded-xl border border-gray-700 bg-gray-800 p-7 text-center">
+              <div className="mb-4 text-4xl">🛒</div>
+              <h3 className="mb-2 text-lg font-bold text-white">
+                Pemesanan Mudah
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Memudahkan pengguna menemukan buku berdasarkan judul.
+              <p className="text-sm leading-relaxed text-gray-400">
+                Pilih buku dan lakukan pemesanan dengan praktis.
               </p>
             </div>
 
-            <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
-                Pemesanan Online
+            <div className="rounded-xl border border-gray-700 bg-gray-800 p-7 text-center">
+              <div className="mb-4 text-4xl">💳</div>
+              <h3 className="mb-2 text-lg font-bold text-white">
+                Pilihan Pembayaran
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Memudahkan pengguna melakukan pemesanan buku secara online.
+              <p className="text-sm leading-relaxed text-gray-400">
+                Tersedia pilihan pembayaran COD dan pembayaran online.
               </p>
             </div>
           </div>
         </div>
-
-      </div>
-    </section>
+      </section>
+    </main>
   );
 }
