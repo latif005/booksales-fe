@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { getBooks } from "../../../_services/books";
 import { bookImageStorage } from "../../../_api";
 
 export default function About() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -22,6 +23,19 @@ export default function About() {
 
     fetchBooks();
   }, []);
+
+  useEffect(() => {
+    if (location.hash === "#tentang-booksales") {
+      const section = document.getElementById("tentang-booksales");
+
+      if (section) {
+        section.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }
+  }, [location.hash]);
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("id-ID", {
@@ -180,6 +194,66 @@ export default function About() {
               </h3>
               <p className="text-sm leading-relaxed text-gray-400">
                 Tersedia pilihan pembayaran COD dan pembayaran online.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tentang BookSales */}
+      <section
+        id="tentang-booksales"
+        className="scroll-mt-24 border-t border-gray-800 bg-gray-900 py-20"
+      >
+        <div className="mx-auto grid max-w-screen-xl items-center gap-10 px-6 md:grid-cols-2">
+          <div>
+            <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-indigo-400">
+              Tentang Kami
+            </p>
+
+            <h2 className="text-3xl font-bold leading-tight text-white md:text-4xl">
+              Mengenal Lebih Dekat BookSales
+            </h2>
+
+            <p className="mt-6 leading-relaxed text-gray-300">
+              BookSales merupakan platform toko buku online yang dikembangkan
+              untuk memudahkan pengguna dalam mencari dan memesan buku. Melalui
+              BookSales, pengguna dapat menjelajahi berbagai koleksi, melihat
+              informasi buku, serta memilih bacaan sesuai minat dan kebutuhan.
+            </p>
+
+            <p className="mt-4 leading-relaxed text-gray-300">
+              Kami menghadirkan proses pemesanan yang praktis, mulai dari
+              memilih buku, memasukkannya ke keranjang, hingga menyelesaikan
+              transaksi melalui pilihan pembayaran yang tersedia.
+            </p>
+
+            <Link
+              to="/books"
+              className="mt-7 inline-flex items-center rounded-lg bg-indigo-600 px-5 py-3 font-semibold text-white transition hover:bg-indigo-700"
+            >
+              Mulai Jelajahi Buku
+              <span className="ml-2">→</span>
+            </Link>
+          </div>
+
+          <div className="rounded-2xl border border-gray-700 bg-gray-800 p-8 md:p-10">
+            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-500/20 text-3xl">
+              📖
+            </div>
+
+            <h3 className="mb-4 text-2xl font-bold text-white">Tujuan Kami</h3>
+
+            <p className="leading-relaxed text-gray-400">
+              Menyediakan pengalaman belanja buku secara online yang mudah
+              dipahami dan praktis digunakan, sehingga pengguna dapat menemukan
+              serta memesan buku dalam satu platform.
+            </p>
+
+            <div className="mt-8 border-t border-gray-700 pt-6">
+              <p className="text-sm font-semibold text-indigo-400">BOOKSALES</p>
+              <p className="mt-1 text-sm text-gray-500">
+                Temukan buku, perluas wawasan.
               </p>
             </div>
           </div>

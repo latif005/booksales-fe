@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../_services/auth";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const token = localStorage.getItem("accessToken");
@@ -138,9 +139,28 @@ export default function Navbar() {
             <ul className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-center lg:gap-3">
               {" "}
               <li>
-                <NavLink to="/" end className={navClass} onClick={closeMenu}>
+                <Link
+                  to="/"
+                  className={navClass({
+                    isActive: location.pathname === "/" && !location.hash,
+                  })}
+                  onClick={closeMenu}
+                >
                   Beranda
-                </NavLink>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/#tentang-booksales"
+                  className={navClass({
+                    isActive:
+                      location.pathname === "/" &&
+                      location.hash === "#tentang-booksales",
+                  })}
+                  onClick={closeMenu}
+                >
+                  About Us
+                </Link>
               </li>
               <li>
                 <NavLink to="/books" className={navClass} onClick={closeMenu}>

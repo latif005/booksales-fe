@@ -29,10 +29,17 @@ export default function Footer() {
             </Link>
 
             <Link
+              to="/#tentang-booksales"
+              className="text-gray-600 transition hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+            >
+              About Us
+            </Link>
+
+            <Link
               to="/books"
               className="text-gray-600 transition hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
             >
-              Books
+              Koleksi Buku
             </Link>
 
             <Link
@@ -47,7 +54,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-7 border-t border-gray-200 pt-5 text-center dark:border-gray-700">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            © 2026 BookSales. All Rights Reserved.
+            &copy; 2026 BookSales. All Rights Reserved.
           </p>
         </div>
       </div>
